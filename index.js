@@ -67,4 +67,5 @@ client.on('roleDelete', async (role) => {
     if (log) await sprawdzModeratora(role.guild, log.executor, 'masowe usuwanie rang (ról)');
 });
 
-client.login("MTUzNDQ3MzgwMTAwMDI4ODM1MA.GEFjkE.ap1MwKPZh03lCuRxnBiYL5lHMFCnFchy-jtu2U");
+client.login(process.env.TOKEN);
+
