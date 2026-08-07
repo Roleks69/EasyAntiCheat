@@ -1,4 +1,19 @@
 const { Client, GatewayIntentBits, AuditLogEvent } = require('discord.js');
+const http = require('http'); // MODUŁ DO UTWORZENIA SZTUCZNEGO SERWERA
+
+// ==================== SZTUCZNY SERWER DLA RENDERA ====================
+// Tworzymy serwer, który odpowiada "OK" na żądania Rendera, dzięki czemu hosting nie wyłączy bota
+const server = http.createServer((req, res) => {
+    res.writeHead(200, { 'Content-Type': 'text/plain; charset=utf-8' });
+    res.end('🛡️ System Anti-Nuke działa stabilnie w chmurze!');
+});
+
+// Render automatycznie przypisuje port w zmiennej process.env.PORT (domyślnie 10000)
+const PORT = process.env.PORT || 10000;
+server.listen(PORT, () => {
+    console.log(`📡 Sztuczny serwer webowy nasłuchuje na porcie: ${PORT}`);
+});
+// =====================================================================
 
 const client = new Client({
     intents: [
@@ -6,12 +21,11 @@ const client = new Client({
         GatewayIntentBits.GuildMembers,
         GatewayIntentBits.GuildModeration,
         GatewayIntentBits.GuildMessages,
-        GatewayIntentBits.MessageContent // Kluczowe uprawnienie, aby bot widział tekst wiadomości!
+        GatewayIntentBits.MessageContent
     ]
 });
 
-// 1. TUTAJ WPISZ ID KANAŁU, NA KTÓRYM BOT MA PISAĆ O AUTOMATYCZNYCH BANACH Z ANTI-NUKE
-const ID_KANALU_LOGOW = "1523313273078943835";
+const ID_KANALU_LOGOW = "TUTAJ_WKLEJ_ID_KANALU_TEKSTOWEGO";
 
 const raidersCache = new Map();
 const LIMIT_AKCJI = 2;       
@@ -21,7 +35,6 @@ client.once('ready', () => {
     console.log(`✅ System Anti-Nuke uruchomiony! Bot zalogowany jako: ${client.user.tag}`);
 });
 
-// Funkcja pomocnicza do systemu Anti-Nuke
 async function sprawdzModeratora(guild, executor, powodAkcji) {
     if (executor.id === guild.ownerId || executor.id === client.user.id) return;
 
@@ -53,41 +66,29 @@ async function sprawdzModeratora(guild, executor, powodAkcji) {
     }
 }
 
-// ==================== NOWOŚĆ: KOMENDA !ban @użytkownik ====================
+// KOMENDA !ban @użytkownik
 client.on('messageCreate', async (message) => {
-    // Ignoruj wiadomości od innych botów oraz wiadomości poza serwerem (DM)
     if (message.author.bot || !message.guild) return;
 
-    // Sprawdź, czy wiadomość zaczyna się od "!ban"
     if (message.content.startsWith('!ban')) {
-        
-        // Zabezpieczenie: Sprawdź, czy TY (autor wiadomości) masz uprawnienie do banowania
         if (!message.member.permissions.has('BanMembers')) {
             return message.reply('❌ Nie masz uprawnień (Banowanie członków), aby używać tej komendy!');
         }
 
-        // Wyciągnij pierwszą oznaczoną osobę z wiadomości
         const uzytkownikDoZbanowania = message.mentions.users.first();
-
-        // Jeśli nikt nie został oznaczony (np. wpisałeś samo !ban)
         if (!uzytkownikDoZbanowania) {
             return message.reply('❌ Musisz oznaczyć użytkownika! Przykład: `!ban @nick`');
         }
 
         try {
-            // Próba zbanowania oznaczonej osoby
             await message.guild.members.ban(uzytkownikDoZbanowania.id, { reason: `Ręczny ban nadany przez moderatora: ${message.author.tag}` });
-            
-            // Wiadomość potwierdzająca na czacie
             await message.channel.send(`🔨 Użytkownik **${uzytkownikDoZbanowania.tag}** został pomyślnie zbanowany przez **${message.author.tag}**!`);
             console.log(`🔨 Moderator ${message.author.tag} użył komendy i zbanował ${uzytkownikDoZbanowania.tag}`);
         } catch (err) {
-            // Jeśli coś pójdzie nie tak (np. brak permisji bota lub hierarchia ról)
             await message.reply(`❌ Nie udało się zbanować tego użytkownika. Powód: ${err.message}`);
         }
     }
 });
-// =========================================================================
 
 // OCHRONA 1: Masowe usuwanie kanałów
 client.on('channelDelete', async (channel) => {
