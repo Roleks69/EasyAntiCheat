@@ -25,7 +25,7 @@ const client = new Client({
     ]
 });
 
-const ID_KANALU_LOGOW = "TUTAJ_WKLEJ_ID_KANALU_TEKSTOWEGO";
+const ID_KANALU_LOGOW = "1523313273078943835";
 
 const raidersCache = new Map();
 const LIMIT_AKCJI = 2;       
