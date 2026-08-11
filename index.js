@@ -1,3 +1,8 @@
+const express = require('express');
+const app = express();
+app.get('/', (req, res) => res.send('Bot działa!'));
+app.listen(process.env.PORT || 10000);
+
 const { Client, GatewayIntentBits, AuditLogEvent } = require('discord.js');
 const http = require('http'); 
 
@@ -117,8 +122,3 @@ client.on('roleDelete', async (role) => {
 });
 
 client.login(process.env.TOKEN);
-
-const express = require('express');
-const app = express();
-app.get('/', (req, res) => res.send('Bot działa!'));
-app.listen(process.env.PORT || 10000);
