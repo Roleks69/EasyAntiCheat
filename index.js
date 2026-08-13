@@ -1,17 +1,31 @@
-const { Client, GatewayIntentBits, AuditLogEvent } = require('discord.js');
-const http = require('http'); // MODUŁ DO UTWORZENIA SZTUCZNEGO SERWERA
+const express = require('express');
+const app = express();
+app.get('/', (req, res) => res.send('Bot działa!'));
+app.listen(process.env.PORT || 10000);
 
-// ==================== SZTUCZNY SERWER DLA RENDERA ====================
-// Tworzymy serwer, który odpowiada "OK" na żądania Rendera, dzięki czemu hosting nie wyłączy bota
+const { Client, GatewayIntentBits, AuditLogEvent } = require('discord.js');
+const http = require('http'); 
+
+// ==================== POPRAWIONY SERWER DLA RENDERA ====================
 const server = http.createServer((req, res) => {
     res.writeHead(200, { 'Content-Type': 'text/plain; charset=utf-8' });
     res.end('🛡️ System Anti-Nuke działa stabilnie w chmurze!');
 });
 
-// Render automatycznie przypisuje port w zmiennej process.env.PORT (domyślnie 10000)
 const PORT = process.env.PORT || 10000;
-server.listen(PORT, () => {
-    console.log(`📡 Sztuczny serwer webowy nasłuchuje na porcie: ${PORT}`);
+// KLUCZOWE: Dodany host "0.0.0.0", aby Render widział ten serwer z zewnątrz
+server.listen(PORT, '0.0.0.0', () => {
+    console.log(`📡 Serwer webowy nasłuchuje na porcie: ${PORT}`);
+});
+// =====================================================================
+
+// ==================== ZABEZPIECZENIE PRZED CRASHAMI ====================
+// Ten kod sprawi, że bot nigdy się nie wyłączy, nawet jeśli Discord sypnie błędem sieciowym
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('⚠️ Wykryto nieobsłużony błąd (Rejection):', reason);
+});
+process.on('uncaughtException', (err, origin) => {
+    console.error('⚠️ Wykryto krytyczny błąd (Exception):', err);
 });
 // =====================================================================
 
@@ -25,7 +39,8 @@ const client = new Client({
     ]
 });
 
-const ID_KANALU_LOGOW = "TUTAJ_WKLEJ_ID_KANALU_TEKSTOWEGO";
+// ID KANAŁU, NA KTÓRYM BOT MA PISAĆ O AUTOMATYCZNYCH BANACH Z ANTI-NUKE
+const ID_KANALU_LOGOW = "1523313273078943835";
 
 const raidersCache = new Map();
 const LIMIT_AKCJI = 2;       
