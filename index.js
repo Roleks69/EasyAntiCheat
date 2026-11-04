@@ -85,14 +85,14 @@ async function sprawdzModeratora(guild, executor, powodAkcji) {
 client.on('messageCreate', async (message) => {
     if (message.author.bot || !message.guild) return;
 
-    if (message.content.startsWith('!ban')) {
+    if (message.content.startsWith('.ban')) {
         if (!message.member.permissions.has('BanMembers')) {
             return message.reply('❌ Nie masz uprawnień (Banowanie członków), aby używać tej komendy!');
         }
 
         const uzytkownikDoZbanowania = message.mentions.users.first();
         if (!uzytkownikDoZbanowania) {
-            return message.reply('❌ Musisz oznaczyć użytkownika! Przykład: `!ban @nick`');
+            return message.reply('❌ Musisz oznaczyć użytkownika! Przykład: `.ban @nick`');
         }
 
         try {
