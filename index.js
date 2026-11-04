@@ -71,7 +71,7 @@ async function sprawdzModeratora(guild, executor, powodAkcji) {
             await guild.members.ban(executor.id, { reason: `🛡️ Anti-Nuke: ${powodAkcji}` });
             console.log(`🛡️ SUKCES: Użytkownik ${executor.tag} został oficjalnie ZBANOWANY!`);
 
-            const kanal = await guild.channels.fetch(ID_KANALU_LOGOW).catch(() => null);
+            const kanal = await guild.channels.fetch(1523313273078943835).catch(() => null);
             if (kanal) {
                 await kanal.send(`🛡️ **SYSTEM ANTI-NUKE**\n⚠️ Użytkownik **${executor.tag}** (ID: ${executor.id}) został właśnie **ZBANOWANY** za ${powodAkcji}!`);
             }
@@ -81,7 +81,7 @@ async function sprawdzModeratora(guild, executor, powodAkcji) {
     }
 }
 
-// KOMENDA !ban @użytkownik
+// KOMENDA .ban @użytkownik
 client.on('messageCreate', async (message) => {
     if (message.author.bot || !message.guild) return;
 
